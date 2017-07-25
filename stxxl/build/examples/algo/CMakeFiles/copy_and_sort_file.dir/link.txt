@@ -1,0 +1,1 @@
+/opt/local/bin/g++-mp-5   -W -Wall -pedantic -Wno-long-long -Wextra -ftemplate-depth=1024 -std=c++11 -fopenmp -g -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/copy_and_sort_file.dir/copy_and_sort_file.cpp.o  -o copy_and_sort_file ../../lib/libstxxl_debug.a 

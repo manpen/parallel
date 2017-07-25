@@ -118,8 +118,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STXXL_CXX_FLAGS}")
 include_directories(${STXXL_INCLUDE_DIRS})
 
 # build a program and link it with STXXL.
-add_executable(non_parallel sorter_non_parallel.cpp)
-target_link_libraries(non_parallel ${STXXL_LIBRARIES})
+add_executable(parallel_testing parallel_testing.cpp)
+target_link_libraries(parallel_testing ${STXXL_LIBRARIES})
 
-set_property(TARGET non_parallel PROPERTY CXX_STANDARD 11)
-set_target_properties(non_parallel PROPERTIES INSTALL_RPATH ${PROJECT_SOURCE_DIR}/build)
+set_property(TARGET parallel_testing PROPERTY CXX_STANDARD 11)
+set_target_properties(parallel_testing PROPERTIES INSTALL_RPATH ${PROJECT_SOURCE_DIR}/build)
