@@ -1,6 +1,7 @@
 #pragma once
 
-//#include <stxxl/sorter>
+#include <stxxl/sorter>
+#include <limits>
 
 template <typename T>
 struct my_comparator3
@@ -24,13 +25,13 @@ struct my_comparator3
 template<typename CINT>
 class DifferentSorter {
 public:
-	DifferentSorter(): quartetSorter(my_comparator3<size_t>(),static_cast<size_t>(1)<<30){};
+	DifferentSorter(): quartetSorter(my_comparator3<CINT>(),static_cast<size_t>(1)<<30){};
 	void insert(CINT number);
 	void sort();
-	std::vector<size_t> getSortedValues(size_t size);
+	std::vector<int> getSortedValues();
 private:
-	 stxxl::sorter<size_t, my_comparator3<size_t> > quartetSorter;
-	 std::vector<size_t> result;
+	 stxxl::sorter<CINT, my_comparator3<CINT> > quartetSorter;
+	 std::vector<CINT> result;
 };
 
 template<typename CINT>
@@ -48,13 +49,11 @@ void DifferentSorter<CINT>::sort() {
 }
 
 template<typename CINT>
-std::vector<size_t> DifferentSorter<CINT>::getSortedValues(size_t size) {
-
-    result.resize(size);
+std::vector<int> DifferentSorter<CINT>::getSortedValues() {
 	
 	while (!quartetSorter.empty())
     {
-        std::cout << *quartetSorter << " ";
+        //std::cout << *quartetSorter << " ";
 		result.push_back(*quartetSorter);
         ++quartetSorter;
     }

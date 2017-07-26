@@ -1,7 +1,9 @@
 #pragma once
 
 
-//#include <stxxl/sorter>
+#include <stxxl/sorter>
+#include <limits>
+#include <chrono>
 
 template <typename T>
 struct my_comparator4
@@ -25,20 +27,27 @@ struct my_comparator4
 template<typename CINT>
 class NonParallelSorter {
 public:
-	NonParallelSorter();
-	using Sorter = stxxl::sorter<size_t, my_comparator4<size_t> >;
+	NonParallelSorter():quartetSorter(my_comparator4<CINT>(),static_cast<size_t>(1)<<30){};
+	std::vector<CINT> computeSorting(std::vector<CINT> numbers);
 private:
-	void computeSorting(Sorter &quartetSorter);
-
+	stxxl::sorter<CINT, my_comparator4<CINT> > quartetSorter;
+	std::vector<CINT> result;
+	typedef typename std::vector<CINT>::const_iterator vector_iterator;
 };
 
 template<typename CINT>
-void NonParallelSorter<CINT>::computeSorting(Sorter &quartetSorter) {
+std::vector<CINT> NonParallelSorter<CINT>::computeSorting(std::vector<CINT> numbers) {
+	
+	std::vector<CINT> result;
+	vector_iterator it;
 	
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 	
-
-		quartetSorter.push(1);
+	for(it = numbers.begin(); it < numbers.end(); it++)
+	{
+			quartetSorter.push(*it);
+	}
+		
 	std::chrono::steady_clock::time_point insert = std::chrono::steady_clock::now();
 	
     quartetSorter.sort();  // sort elements (in ascending order)
@@ -48,7 +57,8 @@ void NonParallelSorter<CINT>::computeSorting(Sorter &quartetSorter) {
     // walk through sorted values and print them out
     while (!quartetSorter.empty())
     {
-		std::cout << *quartetSorter << " ";
+		//std::cout << *quartetSorter << " ";
+		result.push_back(*quartetSorter);
         ++quartetSorter;
     }
     
@@ -61,12 +71,6 @@ void NonParallelSorter<CINT>::computeSorting(Sorter &quartetSorter) {
 				<< " microseconds." << std::endl;
 	std::cout << "Total time: " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()
 				<< " microseconds." << std::endl;
-}
-
-template<typename CINT>
-NonParallelSorter<CINT>::NonParallelSorter(){
-
-	Sorter quartetSorter(my_comparator4<size_t>(),static_cast<size_t>(1)<<30);
-
-	computeSorting(quartetSorter);
+	
+	return result;
 }

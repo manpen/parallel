@@ -37,7 +37,7 @@ private:
 template<typename CINT>
 std::vector<CINT> SynchronSorter<CINT>::computeSorting(std::vector<CINT> numbers) {
 	
-	std::vector<CINT> results(numbers.size());
+	std::vector<CINT> result;
 	
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 		
@@ -54,8 +54,8 @@ std::vector<CINT> SynchronSorter<CINT>::computeSorting(std::vector<CINT> numbers
     // walk through sorted values and print them out
     while (!quartetSorter.empty())
     {
-		std::cout << *quartetSorter << " ";
-		results.push_back(*quartetSorter);
+		//std::cout << *quartetSorter << " ";
+		result.push_back(*quartetSorter);
         ++quartetSorter;
     }
     
@@ -69,6 +69,6 @@ std::vector<CINT> SynchronSorter<CINT>::computeSorting(std::vector<CINT> numbers
 	std::cout << "Total time: " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()
 				<< " microseconds." << std::endl;
 	
-	return results;
+	return result;
 }
 
