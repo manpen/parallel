@@ -30,7 +30,7 @@ std::vector<int> merge_runs(std::vector<std::vector<int>> results)
 	std::vector<int> it(results.size()); //vector with iterators
 	size_t length = 0;
 
-	for(int i = 0; i < results.size(); i++)
+	for(unsigned int i = 0; i < results.size(); i++)
 	{
 		length = length + results[i].size();
 		results[i].push_back(std::numeric_limits<int>::max());		
@@ -40,15 +40,12 @@ std::vector<int> merge_runs(std::vector<std::vector<int>> results)
 		int min_value = std::numeric_limits<int>::max();
 		int min_run = length + 1;
 		
-		for(int j = 0; j < it.size(); j++){
+		for(unsigned int j = 0; j < it.size(); j++){
 			if(min_value > results[j][it[j]]){
 				min_value = results[j][it[j]];
 				min_run = j;
-				//std::cout << "test 3" << "j: " << j << " i: " << i << std::endl;
 			}
-			//std::cout << "test 4"  << "j: " << j << " i: " << i << std::endl;
 		}
-		//std::cout << "test 5" << " min_run: " << min_run << " it[min_run]: " << it[min_run] << std::endl;
 		final_result.push_back(min_value);	
 		++it[min_run];
 	}
@@ -61,7 +58,7 @@ int main(int argc, char** argv)
 	
 	if(argc != 4){
 		std::cout << "Please specify the input file and the implemented option to parallize and number of threads. " << std::endl;
-		std::cout << "Optioins: " << std::endl << "1 Synchron" << std::endl << "2 Asynchron" 
+		std::cout << "Options: " << std::endl << "1 Synchron" << std::endl << "2 Asynchron" 
 			<< std::endl << "3 Different Sorter" << std::endl << "4 Non Parallel" << std::endl;
 		return 0;
 	}
@@ -92,15 +89,17 @@ int main(int argc, char** argv)
 	// Prepare outputfile
 	std::ofstream outputfile;
 	std::ofstream measures;
-	std::vector<int> final_result;
+	std::vector<int> final_result(nlines);
 	
 	int option;
 	std::stringstream(argv[2]) >> option;
 	std::vector<int>::const_iterator it;
-	//measures.open("../0_measures.csv", std::ios_base::app);
+	//measures.open("../0_measures_big.csv", std::ios_base::app);
 	
 	//for(int i = 0; i < 20; i++)
 	//{
+	
+	std::cout << "Number of possible threads" << std::thread::hardware_concurrency() << std::endl;
 	
 	switch (option) {
 		case 1:
@@ -108,8 +107,8 @@ int main(int argc, char** argv)
 			outputfile.open("../1_result_parallel_testing.txt");
 			
 			std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-			SynchronSorter<int> s;
-			final_result = s.computeSorting(numbers);
+			//SynchronSorter<int> s;
+			//final_result = s.computeSorting(numbers);
 			
 			std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 			
@@ -123,9 +122,8 @@ int main(int argc, char** argv)
 			
 			std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 			AsynchronSorter<int> as;
-			final_result = as.computeSorting(numbers);
-			
-			std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+			final_result = as.computeSorting(numbers, nthreads);
+			//std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 			
 			//measures << "2," << nthreads << "," << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
 			
@@ -142,9 +140,7 @@ int main(int argc, char** argv)
 				int t=omp_get_thread_num();
 				
 				//DifferentSorter<int> ds;
-				
 
-				
 				#pragma omp for
 					for ( int i = 0; i < nlines; ++i )
 					{
@@ -178,7 +174,7 @@ int main(int argc, char** argv)
 			#pragma omp critical
 			{	
 				std::cout<<"threads="<<omp_get_num_threads()<< std::endl;
-				//NonParallelSorter<int> nps;
+				///NonParallelSorter<int> nps;
 				//final_result = nps.computeSorting(numbers);
 			}
 			std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
@@ -189,6 +185,7 @@ int main(int argc, char** argv)
 		}
 	}
 	//}//end for loop for measures
+	std::cout << "Finished calculation" << std::endl;
 	for(it = final_result.begin(); it < final_result.end(); it++)
 	{
 		outputfile << *it << std::endl;

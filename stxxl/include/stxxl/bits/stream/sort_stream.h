@@ -619,7 +619,6 @@ public:
     //! \param val value to be added
     void push(const value_type& val)
     {
-		std::cout <<"push4"<< std::endl;
         assert(m_result_computed == false);
         if (LIKELY(m_cur_el < m_el_in_run))
         {
@@ -784,7 +783,6 @@ public:
     //! \param val value to be added to the current run
     void push(const value_type& val)
     {
-        std::cout <<"push3"<< std::endl;
 		assert(offset < block_type::size);
 
         (*cur_block)[offset] = val;

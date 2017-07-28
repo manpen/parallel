@@ -1,11 +1,11 @@
 #pragma once
 
 #include <stxxl/stats>
-#include <stxxl/parallel_sorter_synchron>
+#include <stxxl/parallel_sorter_asynchron>
 #include <chrono>
 
 template <typename T>
-struct my_comparator1
+struct my_comparator2
 {
    bool operator () (const T& a, const T& b) const
    {
@@ -24,24 +24,24 @@ struct my_comparator1
 };
 
 template<typename CINT>
-class SynchronSorter {
+class AsynchronSorter {
 public:
-	SynchronSorter():quartetSorter(my_comparator1<CINT>(),static_cast<size_t>(1)<<30){};
-	std::vector<CINT> computeSorting(std::vector<CINT> numbers);
+	AsynchronSorter():quartetSorter(my_comparator2<CINT>(),static_cast<size_t>(1)<<30){};
+	std::vector<CINT> computeSorting(std::vector<CINT> numbers, int nthreads);
 private:
-	stxxl::parallel_sorter_synchron<CINT, my_comparator1<CINT> > quartetSorter;
+	stxxl::parallel_sorter_asynchron<CINT, my_comparator2<CINT> > quartetSorter;
 	std::vector<CINT> result;
 
 };
 
 template<typename CINT>
-std::vector<CINT> SynchronSorter<CINT>::computeSorting(std::vector<CINT> numbers) {
+std::vector<CINT> AsynchronSorter<CINT>::computeSorting(std::vector<CINT> numbers, int nthreads) {
 	
 	std::vector<CINT> result;
 	
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 		
-		quartetSorter.push_bulk(numbers);
+		quartetSorter.push_bulk(numbers, nthreads);
 			
 	std::chrono::steady_clock::time_point insert = std::chrono::steady_clock::now();
 	
