@@ -497,6 +497,7 @@ private:
 	std::condition_variable cv_blocks_to_write;
 	
 	bool done_pushing;
+	
 
 protected:
     //!  fill the rest of the block with max values
@@ -662,6 +663,8 @@ public:
 	
 	void deamon_write()
 	{
+		std::cout << "Entering deamon" << std::endl;
+		
 		while(!(done_pushing && blocks_to_write.empty()))
 		{
 		block_type* m_blocks = NULL;
@@ -677,6 +680,8 @@ public:
 		{
 		    // Wait until data is inserted
 		    cv_blocks_to_write.wait(lk);
+			
+			std::cout << "Start action" << std::endl;
 			
 			//get the new data block
 			std::tie(m_blocks,m_tmp_in_run) = blocks_to_write.front();
@@ -732,7 +737,7 @@ public:
 	block_type* get_new_block(block_type* m_blocks1, internal_size_type m_tmp_in_run)
 	{
 		block_type* first_block;
-		std::cout << "Thread: " << omp_get_thread_num() << " gets a new block." << std::endl;
+		std::cout << "Thread: " << std::this_thread::get_id() << " gets a new block." << std::endl;
 		
 		//critical section
 		std::unique_lock<std::mutex> lock(mutex_free_blocks);
@@ -770,8 +775,9 @@ public:
 	    internal_size_type m_cur_el = 0;
 		block_type* m_blocks3 = NULL;
 		
-		std::cout << "This is thread: "<< omp_get_thread_num()<< " With id: " << std::this_thread::get_id() << std::endl;
+		std::cout << "This is thread: " << std::this_thread::get_id() << std::endl;
 		
+		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 	    //! every thread get 3 blocks to write to
 	    std::unique_lock<std::mutex> lock(mutex_free_blocks);
 		for(int i = 0; i < 3; i++)
@@ -779,17 +785,20 @@ public:
 			block_type* m_block = NULL;
 			free_blocks.push(allocate(m_block));
 			//m_block = free_blocks.back();
-			//std::cout << "Pointer m_block: " << &m_block << " Memory block: " << &*m_block << std::endl;
+
 		}
-		lock.unlock();
 		
 		vector_iterator it = first;
 		
-		//critical section
-		lock.lock();
 		m_blocks3 = free_blocks.front();
 		free_blocks.pop();
 		lock.unlock();
+		
+		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+		
+		std::cout << std::this_thread::get_id() << " Thread waited in first block: " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
+		
+		std::cout << "Pointer m_block: " << &m_blocks3 << " Memory block: " << &*m_blocks3 << std::endl;
 		
 		for(; it < last; it++)
 		{
@@ -833,13 +842,13 @@ public:
 		//unsigned long const hardware_threads = std::thread::hardware_concurrency();
 		//unsigned long const nthreads = std::min(hardware_threads!=0?hardware_threads:2, max_threads);
 		
-		nthreads = std::max(static_cast<unsigned int>(1), nthreads-2);
+		nthreads = std::max(static_cast<unsigned int>(1), nthreads-1);
 		
 		unsigned long const chunk_size = length/nthreads;
 		
 		//launch two less because Master is already running and one thread is needed for the writing
 		std::vector<std::thread> threads(nthreads-1);
-		std::cout << "This is thread: "<< std::this_thread::get_id() << std::endl;
+		std::cout << "This is the Master thread: "<< std::this_thread::get_id() << std::endl;
 		vector_iterator chunk_start= val.begin();
 		
 		for(unsigned long i=0; i<(nthreads-1);i++)
@@ -852,10 +861,9 @@ public:
 		}
 		parallel_push(chunk_start, (val.end() - 1));
 		
-		std::cout << "Finished pushing" <<std::endl;
-		std::cout << "Size threads: " << threads.size()<< std::endl;
-		
 		std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
+		
+		std::cout << "Finished pushing" <<std::endl;
 		    
 		//std::thread t(&runs_creator::deamon_write, this);
 		done_pushing = true;
