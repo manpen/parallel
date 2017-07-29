@@ -99,8 +99,6 @@ int main(int argc, char** argv)
 	//for(int i = 0; i < 20; i++)
 	//{
 	
-	std::cout << "Number of possible threads" << std::thread::hardware_concurrency() << std::endl;
-	
 	switch (option) {
 		case 1:
 		{
@@ -161,7 +159,7 @@ int main(int argc, char** argv)
 			std::cout << "Total time: " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count()
 						<< " microseconds." << std::endl;
 			
-			measures << "3," << nthreads << "," << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
+			//measures << "3," << nthreads << "," << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << std::endl;
 			
 			final_result = merge_runs(results);
 			
@@ -174,7 +172,7 @@ int main(int argc, char** argv)
 			#pragma omp critical
 			{	
 				std::cout<<"threads="<<omp_get_num_threads()<< std::endl;
-				///NonParallelSorter<int> nps;
+				//NonParallelSorter<int> nps;
 				//final_result = nps.computeSorting(numbers);
 			}
 			std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
