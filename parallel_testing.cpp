@@ -12,6 +12,9 @@
 
 //! [example]
 
+// ManPen: Dont use tabs
+
+
 //#include "4_NonParallelSorter.hpp"
 //#include "3_DifferentSorter.hpp"
 #include "2_Asynchron.hpp"
@@ -23,6 +26,8 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+
+#include <omp.h> // ManPen: Always include all headers you need
 
 std::vector<int> merge_runs(std::vector<std::vector<int>> results)
 {
@@ -63,7 +68,7 @@ int main(int argc, char** argv)
 		return 0;
 	}
 	
-	int nthreads;
+	int nthreads; // ManPen: Do use int (size unknown); rather use int32_t etc.
 	std::stringstream(argv[3]) >> nthreads;
 	
 	std::vector<std::vector<int>> results(nthreads);
@@ -98,7 +103,11 @@ int main(int argc, char** argv)
 	
 	//for(int i = 0; i < 20; i++)
 	//{
-	
+
+   // ManPen: Rather than using std::chrono for profiling consider using
+   // http://stxxl.org/tags/master/common_io_counter.html 
+   // This has the same complexity but gives you ALOT of other helpful infos
+
 	switch (option) {
 		case 1:
 		{
@@ -135,7 +144,11 @@ int main(int argc, char** argv)
 			#pragma omp parallel num_threads(nthreads)
 			{	
 				std::cout<<"threads="<<omp_get_num_threads()<< std::endl;
+            // ManPen: Declare all constants with const (const int t = ...;).
+            // Sooner than later, this will trigger the compiler to warn you about an error in your code
+            // (also it may trigger some optimisations ...)
 				int t=omp_get_thread_num();
+            
 				
 				//DifferentSorter<int> ds;
 

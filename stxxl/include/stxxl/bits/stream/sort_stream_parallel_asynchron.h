@@ -44,6 +44,12 @@ namespace stream {
 //     CREATE RUNS                                                    //
 ////////////////////////////////////////////////////////////////////////
 
+
+// ManPen: YOU SHOULD REALLY RENAME THOSE CLASSES. Having the several classes
+// with the same name but different interfaces/behaivour will break the code
+// as soon, as you include different types of sorters (which will most likely
+// want!)
+
 //! Forms sorted runs of data from a stream.
 //!
 //! \tparam Input type of the input stream
@@ -842,6 +848,7 @@ public:
 		//unsigned long const hardware_threads = std::thread::hardware_concurrency();
 		//unsigned long const nthreads = std::min(hardware_threads!=0?hardware_threads:2, max_threads);
 		
+        // ManPen: static_cast<unsigned int>(1) == 1u
 		nthreads = std::max(static_cast<unsigned int>(1), nthreads-1);
 		
 		unsigned long const chunk_size = length/nthreads;
